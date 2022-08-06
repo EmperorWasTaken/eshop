@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 require('dotenv/config');
 
 const app = express();
@@ -16,6 +17,15 @@ app.get(`${api}/products`, (req, res) => {
     }
     res.send(product);
 });
+
+// Connect to MongoDB
+mongoose.connect(process.env.CONNECTION_STRING)
+.then(() => {
+    console.log('Database Connected!');
+})
+.catch((err) => {
+    console.log(err);
+})
 
 app.post(`${api}/products`, (req, res) => {
     const newProduct = req.body;
