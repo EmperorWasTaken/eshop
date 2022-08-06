@@ -8,12 +8,24 @@ const api = process.env.API_URL;
 app.use(express.json()); //Middleware
 app.use(morgan('tiny')); // For logging
 
+// Mongoose Schema
+const productSchema = mongoose.Schema({
+    id: Number,
+    name: String,
+    image: String,
+    countInStock: Number
+    
+});
+
+// Product model
+const Product = mongoose.model('Product', productSchema);
 
 app.get(`${api}/products`, (req, res) => {
     const product = {
         id: 1,
         name: "bubblegum",
         image: "some_url",
+        countInStock: 2
     }
     res.send(product);
 });
@@ -28,9 +40,20 @@ mongoose.connect(process.env.CONNECTION_STRING)
 })
 
 app.post(`${api}/products`, (req, res) => {
-    const newProduct = req.body;
-    console.log(newProduct);
-    res.send(newProduct);
+    const product = new Product({
+        id: req.body.id,
+        name: req.body.name,
+        image: req.body.image,
+        countInStock: req.body.countInStock
+    })
+    product.save().then((createdProduct => {
+        res.status(201).json(createdProduct);
+    })).catch((err) => {
+        res.status(500).json({
+            error: err,
+            success: false
+        })
+    })
 });
 
 app.listen(3000, ()=>{
